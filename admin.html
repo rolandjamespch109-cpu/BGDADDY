@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGDADDY | Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#07070b;
+  --bg2:#0d0d14;
+  --panel:rgba(255,255,255,.055);
+  --panel2:rgba(255,255,255,.085);
+  --text:#f7f4ff;
+  --muted:#9693a7;
+  --purple:#8b5cf6;
+  --violet:#b26cff;
+  --pink:#ec4899;
+  --gold:#f4c95d;
+  --cyan:#55d9ff;
+  --green:#4ade80;
+  --red:#f87171;
+  --border:rgba(255,255,255,.09);
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Inter,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(139,92,246,.13),transparent 30%),
+    radial-gradient(circle at 90% 10%,rgba(236,72,153,.08),transparent 25%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.login-box{
+  width:100%;
+  max-width:430px;
+  background:rgba(13,13,20,.92);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:38px;
+  box-shadow:0 30px 100px rgba(0,0,0,.5);
+}
+
+.logo{
+  text-align:center;
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:3px;
+  margin-bottom:8px;
+}
+
+.logo span{
+  color:var(--violet);
+}
+
+.login-subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:30px;
+}
+
+.field{
+  margin-bottom:17px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.045);
+  color:var(--text);
+  border-radius:12px;
+  padding:13px 14px;
+  outline:none;
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+select option{
+  background:#111119;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:rgba(139,92,246,.7);
+}
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:12px 17px;
+  color:white;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  font-weight:700;
+}
+
+.btn:hover{
+  opacity:.9;
+}
+
+.btn.secondary{
+  background:var(--panel2);
+  border:1px solid var(--border);
+}
+
+.btn.danger{
+  background:rgba(248,113,113,.15);
+  border:1px solid rgba(248,113,113,.3);
+  color:#ff9d9d;
+}
+
+.btn.success{
+  background:rgba(74,222,128,.13);
+  border:1px solid rgba(74,222,128,.3);
+  color:#7af0a0;
+}
+
+.btn.small{
+  padding:8px 11px;
+  font-size:12px;
+}
+
+.error{
+  color:#ff9d9d;
+  background:rgba(248,113,113,.08);
+  border:1px solid rgba(248,113,113,.2);
+  border-radius:10px;
+  padding:11px;
+  margin-bottom:15px;
+  font-size:13px;
+}
+
+.success-message{
+  color:#7af0a0;
+  background:rgba(74,222,128,.08);
+  border:1px solid rgba(74,222,128,.2);
+  border-radius:10px;
+  padding:11px;
+  margin-bottom:15px;
+  font-size:13px;
+}
+
+/* APP */
+
+#app{
+  display:none;
+  min-height:100vh;
+}
+
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:245px;
+  background:rgba(7,7,11,.94);
+  border-right:1px solid var(--border);
+  padding:25px 17px;
+  z-index:20;
+  overflow-y:auto;
+}
+
+.sidebar-logo{
+  padding:8px 12px 28px;
+  font-weight:800;
+  letter-spacing:2px;
+  font-size:18px;
+}
+
+.sidebar-logo span{
+  color:var(--violet);
+}
+
+.admin-label{
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.nav button{
+  width:100%;
+  text-align:left;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--muted);
+  padding:12px 13px;
+  border-radius:11px;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:var(--panel);
+  border-color:var(--border);
+  color:white;
+}
+
+.sidebar-bottom{
+  position:absolute;
+  left:17px;
+  right:17px;
+  bottom:20px;
+}
+
+.main{
+  margin-left:245px;
+  padding:30px;
+  max-width:1600px;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:28px;
+}
+
+.topbar h1{
+  font-size:28px;
+}
+
+.topbar p{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px;
+}
+
+.top-actions{
+  display:flex;
+  gap:9px;
+}
+
+/* DASHBOARD */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:25px;
+}
+
+.stat{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:21px;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:9px;
+}
+
+.stat-value{
+  font-size:28px;
+  font-weight:800;
+}
+
+.stat-value.purple{color:var(--violet)}
+.stat-value.gold{color:var(--gold)}
+.stat-value.cyan{color:var(--cyan)}
+.stat-value.pink{color:var(--pink)}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px;
+  margin-bottom:20px;
+}
+
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.panel-header h2{
+  font-size:18px;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:750px;
+}
+
+th{
+  text-align:left;
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  padding:12px;
+  border-bottom:1px solid var(--border);
+}
+
+td{
+  padding:13px 12px;
+  border-bottom:1px solid rgba(255,255,255,.055);
+  font-size:13px;
+}
+
+tr:last-child td{
+  border-bottom:0;
+}
+
+.cover-thumb{
+  width:45px;
+  height:55px;
+  object-fit:cover;
+  border-radius:7px;
+  background:#15151e;
+}
+
+.status{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:7px;
+  font-size:10px;
+  font-weight:700;
+}
+
+.status.ongoing{
+  color:#7af0a0;
+  background:rgba(74,222,128,.1);
+}
+
+.status.completed{
+  color:#55d9ff;
+  background:rgba(85,217,255,.1);
+}
+
+.status.development,
+.status.pre-release{
+  color:#f4c95d;
+  background:rgba(244,201,93,.1);
+}
+
+.status.hiatus,
+.status.coming-soon{
+  color:#ff9d9d;
+  background:rgba(248,113,113,.1);
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+/* FORM */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.form-grid .full{
+  grid-column:1/-1;
+}
+
+.checkbox-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+  padding:10px 0;
+}
+
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.checkbox input{
+  width:auto;
+}
+
+.form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(8px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal-box{
+  width:100%;
+  max-width:850px;
+  max-height:92vh;
+  overflow-y:auto;
+  background:#101018;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:25px;
+  box-shadow:0 30px 100px rgba(0,0,0,.7);
+}
+
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.close{
+  border:0;
+  background:var(--panel);
+  color:white;
+  border-radius:9px;
+  width:35px;
+  height:35px;
+  font-size:20px;
+}
+
+.cover-preview{
+  width:130px;
+  height:180px;
+  object-fit:cover;
+  border-radius:10px;
+  margin-top:8px;
+  border:1px solid var(--border);
+}
+
+/* TOAST */
+
+#toast{
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  z-index:500;
+  max-width:360px;
+  padding:13px 17px;
+  border-radius:12px;
+  background:#181820;
+  border:1px solid var(--border);
+  box-shadow:0 15px 50px rgba(0,0,0,.4);
+  transform:translateY(120px);
+  opacity:0;
+  transition:.25s;
+  font-size:13px;
+}
+
+#toast.show{
+  transform:translateY(0);
+  opacity:1;
+}
+
+#toast.error-toast{
+  border-color:rgba(248,113,113,.4);
+}
+
+/* MOBILE */
+
+.mobile-top{
+  display:none;
+}
+
+@media(max-width:900px){
+  .sidebar{
+    width:205px;
+  }
+
+  .main{
+    margin-left:205px;
+    padding:20px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:650px){
+  .sidebar{
+    display:none;
+  }
+
+  .main{
+    margin-left:0;
+    padding:15px;
+    padding-top:72px;
+  }
+
+  .mobile-top{
+    display:flex;
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:30;
+    background:#09090e;
+    border-bottom:1px solid var(--border);
+    padding:14px;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .topbar{
+    align-items:flex-start;
+  }
+
+  .topbar h1{
+    font-size:22px;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .stat{
+    padding:15px;
+  }
+
+  .stat-value{
+    font-size:22px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid .full{
+    grid-column:auto;
+  }
+
+  .login-box{
+    padding:27px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="logo">BG<span>DADDY</span></div>
+    <div class="login-subtitle">Story Universe · Admin Portal</div>
+
+    <div id="loginError" class="error hidden"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Email</label>
+        <input id="loginEmail" type="email" required autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input id="loginPassword" type="password" required autocomplete="current-password">
+      </div>
+
+      <button class="btn" style="width:100%;" type="submit">
+        Sign In
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      BG<span>DADDY</span>
+      <div class="admin-label">ADMIN DASHBOARD</div>
+    </div>
+
+    <nav class="nav">
+      <button class="active" data-page="dashboard">📊 Dashboard</button>
+      <button data-page="books">📚 Books</button>
+      <button data-page="chapters">📖 Chapters</button>
+      <button data-page="characters">👤 Characters</button>
+      <button data-page="genres">🏷️ Genres</button>
+      <button data-page="reviews">💬 Reviews</button>
+      <button data-page="users">👥 Users</button>
+      <button data-page="settings">⚙️ Settings</button>
+      <button data-page="activity">📋 Activity</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="btn secondary" id="publicSiteBtn" style="width:100%;margin-bottom:8px;">
+        View Website
+      </button>
+      <button class="btn danger" id="logoutBtn" style="width:100%;">
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <div class="mobile-top">
+    <strong>BG<span style="color:var(--violet)">DADDY</span></strong>
+    <button class="btn secondary small" id="mobileLogout">Sign Out</button>
+  </div>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section id="page-dashboard" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Manage your Story Universe from one place.</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">TOTAL BOOKS</div>
+          <div id="statBooks" class="stat-value purple">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">CHAPTERS</div>
+          <div id="statChapters" class="stat-value cyan">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">CHARACTERS</div>
+          <div id="statCharacters" class="stat-value pink">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">REVIEWS</div>
+          <div id="statReviews" class="stat-value gold">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Recent Books</h2>
+          <button class="btn small" onclick="openBookModal()">+ Add Book</button>
+        </div>
+
+        <div id="dashboardBooks" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- BOOKS -->
+    <section id="page-books" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Books</h1>
+          <p>Create and manage your novels.</p>
+        </div>
+
+        <button class="btn" onclick="openBookModal()">+ Add New Book</button>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="booksTable"></div>
+      </div>
+    </section>
+
+    <!-- CHAPTERS -->
+    <section id="page-chapters" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Chapters</h1>
+          <p>Add and manage chapters for your books.</p>
+        </div>
+
+        <button class="btn" onclick="openChapterModal()">+ Add Chapter</button>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="chaptersTable"></div>
+      </div>
+    </section>
+
+    <!-- CHARACTERS -->
+    <section id="page-characters" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Characters</h1>
+          <p>Manage characters across your Story Universe.</p>
+        </div>
+
+        <button class="btn" onclick="openCharacterModal()">+ Add Character</button>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="charactersTable"></div>
+      </div>
+    </section>
+
+    <!-- GENRES -->
+    <section id="page-genres" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Genres</h1>
+          <p>Manage genres used by your books.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;gap:10px;margin-bottom:20px;">
+          <input id="newGenre" placeholder="New genre name">
+          <button class="btn" onclick="addGenre()">Add Genre</button>
+        </div>
+
+        <div id="genresList"></div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="page-reviews" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Reviews</h1>
+          <p>Review and moderate reader feedback.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="reviewsTable"></div>
+      </div>
+    </section>
+
+    <!-- USERS -->
+    <section id="page-users" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Users</h1>
+          <p>Reader profiles and library activity.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="usersTable"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="page-settings" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Settings</h1>
+          <p>Control the reader support system.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Crystal Support</h2>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Chapters Required</label>
+            <input id="settingChapters" type="number" min="1">
+          </div>
+
+          <div class="field">
+            <label>Crystal Reward</label>
+            <input id="settingReward" type="number" min="0">
+          </div>
+
+          <div class="field full">
+            <label class="checkbox">
+              <input id="settingEnabled" type="checkbox">
+              Enable crystal support rewards
+            </label>
+          </div>
+        </div>
+
+        <button class="btn" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section id="page-activity" class="page hidden">
+      <div class="topbar">
+        <div>
+          <h1>Activity Log</h1>
+          <p>Recent administrative actions.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap" id="activityTable"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- BOOK MODAL -->
+<div id="bookModal" class="modal hidden">
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <h2 id="bookModalTitle">Add New Book</h2>
+      <button class="close" onclick="closeModal('bookModal')">×</button>
+    </div>
+
+    <form id="bookForm">
+
+      <input id="bookId" type="hidden">
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label>Book Title *</label>
+          <input id="bookTitle" required>
+        </div>
+
+        <div class="field">
+          <label>Slug *</label>
+          <input id="bookSlug" placeholder="my-book-title" required>
+        </div>
+
+        <div class="field full">
+          <label>Description</label>
+          <textarea id="bookDescription"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select id="bookStatus">
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="hiatus">Hiatus</option>
+            <option value="development">Development</option>
+            <option value="pre-release">Pre-release</option>
+            <option value="coming-soon">Coming Soon</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Cover Image URL</label>
+          <input id="bookCover" placeholder="https://...">
+        </div>
+
+        <div class="field">
+          <label>Default Crystals</label>
+          <input id="bookCrystals" type="number" min="0" value="0">
+        </div>
+
+        <div class="field">
+          <label>Default Votes</label>
+          <input id="bookVotes" type="number" min="0" value="0">
+        </div>
+
+        <div class="field">
+          <label>Displayed Readers</label>
+          <input id="bookReaders" type="number" min="0" value="0">
+        </div>
+
+        <div class="field">
+          <label>Author</label>
+          <input id="bookAuthor" value="BGDADDY">
+        </div>
+
+        <div class="field full">
+          <label>Book Platforms</label>
+          <div id="platformInputs"></div>
+          <button type="button" class="btn secondary small" onclick="addPlatformInput()">
+            + Add Platform
+          </button>
+        </div>
+
+        <div class="field full">
+          <div class="checkbox-row">
+            <label class="checkbox">
+              <input id="bookFeatured" type="checkbox">
+              Featured
+            </label>
+
+            <label class="checkbox">
+              <input id="bookTrending" type="checkbox">
+              Trending
+            </label>
+
+            <label class="checkbox">
+              <input id="bookPublished" type="checkbox" checked>
+              Published
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save Book</button>
+        <button class="btn secondary" type="button" onclick="closeModal('bookModal')">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- CHAPTER MODAL -->
+<div id="chapterModal" class="modal hidden">
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <h2 id="chapterModalTitle">Add Chapter</h2>
+      <button class="close" onclick="closeModal('chapterModal')">×</button>
+    </div>
+
+    <form id="chapterForm">
+
+      <input id="chapterId" type="hidden">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Book *</label>
+          <select id="chapterBook" required></select>
+        </div>
+
+        <div class="field">
+          <label>Chapter Number *</label>
+          <input id="chapterNumber" type="number" min="1" required>
+        </div>
+
+        <div class="field">
+          <label>Chapter Title</label>
+          <input id="chapterTitle">
+        </div>
+
+        <div class="field full">
+          <label>Chapter Content</label>
+          <textarea id="chapterContent" style="min-height:350px;"></textarea>
+        </div>
+
+        <div class="field full">
+          <label class="checkbox">
+            <input id="chapterPublished" type="checkbox">
+            Published
+          </label>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save Chapter</button>
+        <button class="btn secondary" type="button" onclick="closeModal('chapterModal')">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- CHARACTER MODAL -->
+<div id="characterModal" class="modal hidden">
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <h2>Add Character</h2>
+      <button class="close" onclick="closeModal('characterModal')">×</button>
+    </div>
+
+    <form id="characterForm">
+
+      <input id="characterId" type="hidden">
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label>Name *</label>
+          <input id="characterName" required>
+        </div>
+
+        <div class="field">
+          <label>Slug</label>
+          <input id="characterSlug">
+        </div>
+
+        <div class="field">
+          <label>Power Rank</label>
+          <input id="characterRank" placeholder="SSS">
+        </div>
+
+        <div class="field">
+          <label>Image URL</label>
+          <input id="characterImage">
+        </div>
+
+        <div class="field full">
+          <label>Description</label>
+          <textarea id="characterDescription"></textarea>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save Character</button>
+        <button class="btn secondary" type="button" onclick="closeModal('characterModal')">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL = "https://pdwgyknthvnzqwpgblxt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_hFVf6lJFSekm7iIf2rdHmQ_PXw_DszE";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
+let booksCache = [];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value){
+  if(value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function showToast(message,error=false){
+  const toast=document.getElementById("toast");
+
+  toast.textContent=message;
+  toast.classList.toggle("error-toast",error);
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },3000);
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.add("hidden");
+}
+
+function openModal(id){
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function formatDate(date){
+  if(!date) return "-";
+
+  return new Date(date).toLocaleDateString("en-GB",{
+    day:"2-digit",
+    month:"short",
+    year:"numeric"
+  });
+}
+
+function statusBadge(status){
+  return `<span class="status ${escapeHtml(status)}">${escapeHtml(status)}</span>`;
+}
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+async function checkAuth(){
+
+  const {
+    data:{session}
+  } = await supabaseClient.auth.getSession();
+
+  if(!session){
+    showLogin();
+    return;
+  }
+
+  currentUser=session.user;
+
+  const {
+    data:profile,
+    error
+  } = await supabaseClient
+    .from("profiles")
+    .select("id,username,display_name,role")
+    .eq("id",currentUser.id)
+    .single();
+
+  if(error || !profile || profile.role !== "admin"){
+    await supabaseClient.auth.signOut();
+
+    showLogin();
+
+    document.getElementById("loginError").textContent =
+      "This account does not have administrator access.";
+
+    document.getElementById("loginError").classList.remove("hidden");
+
+    return;
+  }
+
+  showApp();
+}
+
+function showLogin(){
+  document.getElementById("loginScreen").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+
+function showApp(){
+  document.getElementById("loginScreen").style.display="none";
+  document.getElementById("app").style.display="block";
+
+  loadDashboard();
+}
+
+document.getElementById("loginForm").addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  const errorBox=document.getElementById("loginError");
+
+  errorBox.classList.add("hidden");
+
+  const {error}=await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    errorBox.textContent=error.message;
+    errorBox.classList.remove("hidden");
+    return;
+  }
+
+  checkAuth();
+});
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+  currentUser=null;
+  showLogin();
+}
+
+document.getElementById("logoutBtn").addEventListener("click",logout);
+document.getElementById("mobileLogout").addEventListener("click",logout);
+
+document.getElementById("publicSiteBtn").addEventListener("click",()=>{
+  window.location.href="index.html";
+});
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document.querySelectorAll(".nav button").forEach(button=>{
+
+  button.addEventListener("click",()=>{
+
+    const page=button.dataset.page;
+
+    document.querySelectorAll(".nav button")
+      .forEach(b=>b.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document.querySelectorAll(".page")
+      .forEach(section=>section.classList.add("hidden"));
+
+    document.getElementById("page-"+page)
+      .classList.remove("hidden");
+
+    if(page==="dashboard") loadDashboard();
+    if(page==="books") loadBooks();
+    if(page==="chapters") loadChapters();
+    if(page==="characters") loadCharacters();
+    if(page==="genres") loadGenres();
+    if(page==="reviews") loadReviews();
+    if(page==="users") loadUsers();
+    if(page==="settings") loadSettings();
+    if(page==="activity") loadActivity();
+  });
+
+});
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+async function loadDashboard(){
+
+  const [
+    books,
+    chapters,
+    characters,
+    reviews
+  ]=await Promise.all([
+
+    supabaseClient
+      .from("books")
+      .select("id,title,status,cover_url,created_at")
+      .order("created_at",{ascending:false}),
+
+    supabaseClient
+      .from("chapters")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("characters")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("reviews")
+      .select("id",{count:"exact",head:true})
+
+  ]);
+
+  booksCache=books.data || [];
+
+  document.getElementById("statBooks").textContent=
+    books.data?.length || 0;
+
+  document.getElementById("statChapters").textContent=
+    chapters.count || 0;
+
+  document.getElementById("statCharacters").textContent=
+    characters.count || 0;
+
+  document.getElementById("statReviews").textContent=
+    reviews.count || 0;
+
+  renderDashboardBooks(books.data || []);
+}
+
+function renderDashboardBooks(books){
+
+  if(!books.length){
+    document.getElementById("dashboardBooks").innerHTML=
+      `<p class="muted">No books have been added yet.</p>`;
+    return;
+  }
+
+  document.getElementById("dashboardBooks").innerHTML=`
+
+    <table>
+      <thead>
+        <tr>
+          <th>Book</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${books.slice(0,8).map(book=>`
+
+          <tr>
+
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <img
+                  class="cover-thumb"
+                  src="${escapeHtml(book.cover_url || "")}"
+                  onerror="this.style.display='none'"
+                >
+                <strong>${escapeHtml(book.title)}</strong>
+              </div>
+            </td>
+
+            <td>${statusBadge(book.status)}</td>
+
+            <td>${formatDate(book.created_at)}</td>
+
+            <td>
+              <button
+                class="btn secondary small"
+                onclick="editBook('${book.id}')">
+                Edit
+              </button>
+            </td>
+
+          </tr>
+
+        `).join("")}
+
+      </tbody>
+    </table>
+  `;
+}
+
+/* =========================================================
+   BOOKS
+========================================================= */
+
+async function loadBooks(){
+
+  const {data,error}=await supabaseClient
+    .from("books")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  booksCache=data || [];
+
+  const html=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Book</th>
+          <th>Status</th>
+          <th>Featured</th>
+          <th>Trending</th>
+          <th>Published</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(book=>`
+
+          <tr>
+
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <img
+                  class="cover-thumb"
+                  src="${escapeHtml(book.cover_url || "")}"
+                  onerror="this.style.display='none'"
+                >
+                <strong>${escapeHtml(book.title)}</strong>
+              </div>
+            </td>
+
+            <td>${statusBadge(book.status)}</td>
+
+            <td>${book.featured ? "✓" : "—"}</td>
+
+            <td>${book.trending ? "✓" : "—"}</td>
+
+            <td>${book.published ? "✓" : "—"}</td>
+
+            <td>
+              <div class="actions">
+
+                <button
+                  class="btn secondary small"
+                  onclick="editBook('${book.id}')">
+                  Edit
+                </button>
+
+                <button
+                  class="btn danger small"
+                  onclick="deleteBook('${book.id}','${escapeHtml(book.title).replace(/'/g,"\\'")}')">
+                  Delete
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="6" class="muted">
+              No books found.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+
+  document.getElementById("booksTable").innerHTML=html;
+}
+
+/* =========================================================
+   BOOK MODAL
+========================================================= */
+
+function resetPlatformInputs(){
+
+  document.getElementById("platformInputs").innerHTML="";
+
+  addPlatformInput();
+}
+
+function addPlatformInput(name="",url=""){
+
+  const container=document.getElementById("platformInputs");
+
+  const row=document.createElement("div");
+
+  row.style.display="grid";
+  row.style.gridTemplateColumns="1fr 2fr auto";
+  row.style.gap="8px";
+  row.style.marginBottom="8px";
+
+  row.innerHTML=`
+
+    <input
+      class="platform-name"
+      placeholder="Platform"
+      value="${escapeHtml(name)}">
+
+    <input
+      class="platform-url"
+      placeholder="https://..."
+      value="${escapeHtml(url)}">
+
+    <button
+      type="button"
+      class="btn danger small"
+      onclick="this.parentElement.remove()">
+      ×
+    </button>
+  `;
+
+  container.appendChild(row);
+}
+
+function openBookModal(book=null){
+
+  document.getElementById("bookForm").reset();
+
+  document.getElementById("bookId").value="";
+  document.getElementById("bookModalTitle").textContent=
+    book ? "Edit Book" : "Add New Book";
+
+  document.getElementById("bookStatus").value="ongoing";
+  document.getElementById("bookAuthor").value="BGDADDY";
+  document.getElementById("bookPublished").checked=true;
+
+  resetPlatformInputs();
+
+  if(book){
+
+    document.getElementById("bookId").value=book.id;
+    document.getElementById("bookTitle").value=book.title || "";
+    document.getElementById("bookSlug").value=book.slug || "";
+    document.getElementById("bookDescription").value=book.description || "";
+    document.getElementById("bookStatus").value=book.status || "ongoing";
+    document.getElementById("bookCover").value=book.cover_url || "";
+    document.getElementById("bookCrystals").value=book.default_crystals || 0;
+    document.getElementById("bookVotes").value=book.default_votes || 0;
+    document.getElementById("bookReaders").value=book.default_readers || 0;
+    document.getElementById("bookAuthor").value=book.author || "BGDADDY";
+    document.getElementById("bookFeatured").checked=!!book.featured;
+    document.getElementById("bookTrending").checked=!!book.trending;
+    document.getElementById("bookPublished").checked=!!book.published;
+
+    loadBookPlatforms(book.id);
+  }
+
+  openModal("bookModal");
+}
+
+async function loadBookPlatforms(bookId){
+
+  const {data,error}=await supabaseClient
+    .from("book_platforms")
+    .select("*")
+    .eq("book_id",bookId);
+
+  if(error) return;
+
+  document.getElementById("platformInputs").innerHTML="";
+
+  if(!data.length){
+    addPlatformInput();
+    return;
+  }
+
+  data.forEach(platform=>{
+    addPlatformInput(
+      platform.platform_name,
+      platform.platform_url
+    );
+  });
+}
+
+async function editBook(id){
+
+  let book=booksCache.find(b=>b.id===id);
+
+  if(!book){
+
+    const {data}=await supabaseClient
+      .from("books")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+    book=data;
+  }
+
+  if(book) openBookModal(book);
+}
+
+document.getElementById("bookForm").addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  const id=document.getElementById("bookId").value;
+
+  const payload={
+    title:document.getElementById("bookTitle").value.trim(),
+    slug:document.getElementById("bookSlug").value.trim(),
+    description:document.getElementById("bookDescription").value.trim(),
+    status:document.getElementById("bookStatus").value,
+    cover_url:document.getElementById("bookCover").value.trim() || null,
+    default_crystals:Number(document.getElementById("bookCrystals").value)||0,
+    default_votes:Number(document.getElementById("bookVotes").value)||0,
+    default_readers:Number(document.getElementById("bookReaders").value)||0,
+    author:document.getElementById("bookAuthor").value.trim() || "BGDADDY",
+    featured:document.getElementById("bookFeatured").checked,
+    trending:document.getElementById("bookTrending").checked,
+    published:document.getElementById("bookPublished").checked,
+    updated_at:new Date().toISOString()
+  };
+
+  let result;
+
+  if(id){
+
+    result=await supabaseClient
+      .from("books")
+      .update(payload)
+      .eq("id",id)
+      .select()
+      .single();
+
+  }else{
+
+    result=await supabaseClient
+      .from("books")
+      .insert(payload)
+      .select()
+      .single();
+  }
+
+  if(result.error){
+
+    showToast(result.error.message,true);
+    return;
+  }
+
+  const book=result.data;
+
+  /* Platforms */
+
+  await supabaseClient
+    .from("book_platforms")
+    .delete()
+    .eq("book_id",book.id);
+
+  const platformRows=[];
+
+  document.querySelectorAll("#platformInputs > div").forEach(row=>{
+
+    const name=row.querySelector(".platform-name")?.value.trim();
+    const url=row.querySelector(".platform-url")?.value.trim();
+
+    if(name){
+
+      platformRows.push({
+        book_id:book.id,
+        platform_name:name,
+        platform_url:url || null
+      });
+
+    }
+
+  });
+
+  if(platformRows.length){
+
+    const platformResult=await supabaseClient
+      .from("book_platforms")
+      .insert(platformRows);
+
+    if(platformResult.error){
+      showToast(platformResult.error.message,true);
+      return;
+    }
+  }
+
+  await logActivity(
+    id ? "Updated book" : "Created book",
+    "book",
+    book.id
+  );
+
+  closeModal("bookModal");
+
+  showToast(id ? "Book updated successfully." : "Book added successfully.");
+
+  loadBooks();
+  loadDashboard();
+});
+
+async function deleteBook(id,title){
+
+  if(!confirm(`Delete "${title}"?\n\nThis removes the book from the database.`)){
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("books")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Deleted book","book",id);
+
+  showToast("Book deleted.");
+
+  loadBooks();
+  loadDashboard();
+}
+
+/* =========================================================
+   CHAPTERS
+========================================================= */
+
+async function loadChapters(){
+
+  const {data,error}=await supabaseClient
+    .from("chapters")
+    .select(`
+      *,
+      books (
+        id,
+        title
+      )
+    `)
+    .order("chapter_number",{ascending:false});
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("chaptersTable").innerHTML=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Book</th>
+          <th>Chapter</th>
+          <th>Title</th>
+          <th>Published</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(chapter=>`
+
+          <tr>
+
+            <td>${escapeHtml(chapter.books?.title || "Unknown")}</td>
+
+            <td>#${chapter.chapter_number}</td>
+
+            <td>${escapeHtml(chapter.title || "Untitled")}</td>
+
+            <td>${chapter.published ? "✓" : "—"}</td>
+
+            <td>${formatDate(chapter.created_at)}</td>
+
+            <td>
+              <div class="actions">
+
+                <button
+                  class="btn secondary small"
+                  onclick="editChapter('${chapter.id}')">
+                  Edit
+                </button>
+
+                <button
+                  class="btn danger small"
+                  onclick="deleteChapter('${chapter.id}')">
+                  Delete
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="6" class="muted">
+              No chapters found.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+async function populateBookSelect(){
+
+  const {data,error}=await supabaseClient
+    .from("books")
+    .select("id,title")
+    .order("title");
+
+  if(error) return;
+
+  document.getElementById("chapterBook").innerHTML=data.map(book=>`
+    <option value="${book.id}">
+      ${escapeHtml(book.title)}
+    </option>
+  `).join("");
+}
+
+async function openChapterModal(chapter=null){
+
+  document.getElementById("chapterForm").reset();
+
+  document.getElementById("chapterId").value="";
+
+  await populateBookSelect();
+
+  document.getElementById("chapterModalTitle").textContent=
+    chapter ? "Edit Chapter" : "Add Chapter";
+
+  if(chapter){
+
+    document.getElementById("chapterId").value=chapter.id;
+    document.getElementById("chapterBook").value=chapter.book_id;
+    document.getElementById("chapterNumber").value=chapter.chapter_number;
+    document.getElementById("chapterTitle").value=chapter.title || "";
+    document.getElementById("chapterContent").value=chapter.content || "";
+    document.getElementById("chapterPublished").checked=!!chapter.published;
+
+  }
+
+  openModal("chapterModal");
+}
+
+async function editChapter(id){
+
+  const {data,error}=await supabaseClient
+    .from("chapters")
+    .select("*")
+    .eq("id",id)
+    .single();
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  openChapterModal(data);
+}
+
+document.getElementById("chapterForm").addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  const id=document.getElementById("chapterId").value;
+
+  const payload={
+    book_id:document.getElementById("chapterBook").value,
+    chapter_number:Number(document.getElementById("chapterNumber").value),
+    title:document.getElementById("chapterTitle").value.trim() || null,
+    content:document.getElementById("chapterContent").value,
+    published:document.getElementById("chapterPublished").checked,
+    published_at:document.getElementById("chapterPublished").checked
+      ? new Date().toISOString()
+      : null
+  };
+
+  let result;
+
+  if(id){
+
+    result=await supabaseClient
+      .from("chapters")
+      .update(payload)
+      .eq("id",id)
+      .select()
+      .single();
+
+  }else{
+
+    result=await supabaseClient
+      .from("chapters")
+      .insert(payload)
+      .select()
+      .single();
+
+  }
+
+  if(result.error){
+    showToast(result.error.message,true);
+    return;
+  }
+
+  await logActivity(
+    id ? "Updated chapter" : "Created chapter",
+    "chapter",
+    result.data.id
+  );
+
+  closeModal("chapterModal");
+
+  showToast(id ? "Chapter updated." : "Chapter added.");
+
+  loadChapters();
+  loadDashboard();
+});
+
+async function deleteChapter(id){
+
+  if(!confirm("Delete this chapter?")){
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("chapters")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Deleted chapter","chapter",id);
+
+  showToast("Chapter deleted.");
+
+  loadChapters();
+  loadDashboard();
+}
+
+/* =========================================================
+   CHARACTERS
+========================================================= */
+
+async function loadCharacters(){
+
+  const {data,error}=await supabaseClient
+    .from("characters")
+    .select("*")
+    .order("name");
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("charactersTable").innerHTML=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Character</th>
+          <th>Rank</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(character=>`
+
+          <tr>
+
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+
+                ${character.image_url ? `
+                  <img
+                    class="cover-thumb"
+                    src="${escapeHtml(character.image_url)}"
+                    onerror="this.style.display='none'">
+                ` : ""}
+
+                <strong>${escapeHtml(character.name)}</strong>
+
+              </div>
+            </td>
+
+            <td>${escapeHtml(character.power_rank || "—")}</td>
+
+            <td>
+              <span class="muted">
+                ${escapeHtml(
+                  (character.description || "").slice(0,100)
+                )}
+              </span>
+            </td>
+
+            <td>
+              <div class="actions">
+
+                <button
+                  class="btn secondary small"
+                  onclick="editCharacter('${character.id}')">
+                  Edit
+                </button>
+
+                <button
+                  class="btn danger small"
+                  onclick="deleteCharacter('${character.id}')">
+                  Delete
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="4" class="muted">
+              No characters found.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+function openCharacterModal(character=null){
+
+  document.getElementById("characterForm").reset();
+
+  document.getElementById("characterId").value="";
+
+  if(character){
+
+    document.getElementById("characterId").value=character.id;
+    document.getElementById("characterName").value=character.name || "";
+    document.getElementById("characterSlug").value=character.slug || "";
+    document.getElementById("characterRank").value=character.power_rank || "";
+    document.getElementById("characterImage").value=character.image_url || "";
+    document.getElementById("characterDescription").value=character.description || "";
+
+  }
+
+  openModal("characterModal");
+}
+
+async function editCharacter(id){
+
+  const {data,error}=await supabaseClient
+    .from("characters")
+    .select("*")
+    .eq("id",id)
+    .single();
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  openCharacterModal(data);
+}
+
+document.getElementById("characterForm").addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  const id=document.getElementById("characterId").value;
+
+  const name=document.getElementById("characterName").value.trim();
+
+  const payload={
+    name,
+    slug:document.getElementById("characterSlug").value.trim() ||
+      name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),
+    power_rank:document.getElementById("characterRank").value.trim() || null,
+    image_url:document.getElementById("characterImage").value.trim() || null,
+    description:document.getElementById("characterDescription").value.trim() || null
+  };
+
+  let result;
+
+  if(id){
+
+    result=await supabaseClient
+      .from("characters")
+      .update(payload)
+      .eq("id",id)
+      .select()
+      .single();
+
+  }else{
+
+    result=await supabaseClient
+      .from("characters")
+      .insert(payload)
+      .select()
+      .single();
+
+  }
+
+  if(result.error){
+    showToast(result.error.message,true);
+    return;
+  }
+
+  await logActivity(
+    id ? "Updated character" : "Created character",
+    "character",
+    result.data.id
+  );
+
+  closeModal("characterModal");
+
+  showToast(id ? "Character updated." : "Character added.");
+
+  loadCharacters();
+  loadDashboard();
+});
+
+async function deleteCharacter(id){
+
+  if(!confirm("Delete this character?")){
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("characters")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Deleted character","character",id);
+
+  showToast("Character deleted.");
+
+  loadCharacters();
+  loadDashboard();
+}
+
+/* =========================================================
+   GENRES
+========================================================= */
+
+async function loadGenres(){
+
+  const {data,error}=await supabaseClient
+    .from("genres")
+    .select("*")
+    .order("name");
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("genresList").innerHTML=
+
+    data.length
+
+    ? `
+
+      <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:9px;
+      ">
+
+        ${data.map(genre=>`
+
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            background:var(--panel2);
+            border:1px solid var(--border);
+            border-radius:10px;
+            padding:9px 10px;
+          ">
+
+            <span>${escapeHtml(genre.name)}</span>
+
+            <button
+              class="btn danger small"
+              onclick="deleteGenre('${genre.id}')">
+              ×
+            </button>
+
+          </div>
+
+        `).join("")}
+
+      </div>
+
+    `
+
+    : `<p class="muted">No genres found.</p>`;
+}
+
+async function addGenre(){
+
+  const input=document.getElementById("newGenre");
+
+  const name=input.value.trim();
+
+  if(!name){
+    showToast("Enter a genre name.",true);
+    return;
+  }
+
+  const {data,error}=await supabaseClient
+    .from("genres")
+    .insert({name})
+    .select()
+    .single();
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Created genre","genre",data.id);
+
+  input.value="";
+
+  showToast("Genre added.");
+
+  loadGenres();
+}
+
+async function deleteGenre(id){
+
+  if(!confirm("Delete this genre?")){
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("genres")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Deleted genre","genre",id);
+
+  showToast("Genre deleted.");
+
+  loadGenres();
+}
+
+/* =========================================================
+   REVIEWS
+========================================================= */
+
+async function loadReviews(){
+
+  const {data,error}=await supabaseClient
+    .from("reviews")
+    .select(`
+      *,
+      profiles (
+        username,
+        display_name
+      ),
+      books (
+        title
+      )
+    `)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("reviewsTable").innerHTML=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Book</th>
+          <th>User</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th>Approved</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(review=>`
+
+          <tr>
+
+            <td>${escapeHtml(review.books?.title || "Unknown")}</td>
+
+            <td>
+              ${escapeHtml(
+                review.profiles?.display_name ||
+                review.profiles?.username ||
+                "Reader"
+              )}
+            </td>
+
+            <td>${"★".repeat(review.rating || 0)}</td>
+
+            <td>
+              ${escapeHtml(
+                (review.review_text || "").slice(0,150)
+              )}
+            </td>
+
+            <td>${review.approved ? "✓" : "—"}</td>
+
+            <td>
+              <div class="actions">
+
+                <button
+                  class="btn success small"
+                  onclick="toggleReview('${review.id}',${!review.approved})">
+                  ${review.approved ? "Hide" : "Approve"}
+                </button>
+
+                <button
+                  class="btn danger small"
+                  onclick="deleteReview('${review.id}')">
+                  Delete
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="6" class="muted">
+              No reviews found.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+async function toggleReview(id,value){
+
+  const {error}=await supabaseClient
+    .from("reviews")
+    .update({approved:value})
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity(
+    value ? "Approved review" : "Hid review",
+    "review",
+    id
+  );
+
+  showToast(value ? "Review approved." : "Review hidden.");
+
+  loadReviews();
+}
+
+async function deleteReview(id){
+
+  if(!confirm("Delete this review?")){
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("reviews")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Deleted review","review",id);
+
+  showToast("Review deleted.");
+
+  loadReviews();
+}
+
+/* =========================================================
+   USERS
+========================================================= */
+
+async function loadUsers(){
+
+  const {data,error}=await supabaseClient
+    .from("profiles")
+    .select("id,username,display_name,role,crystals")
+    .order("username");
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("usersTable").innerHTML=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Display Name</th>
+          <th>Role</th>
+          <th>Crystals</th>
+          <th>ID</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(user=>`
+
+          <tr>
+
+            <td>${escapeHtml(user.username || "—")}</td>
+
+            <td>${escapeHtml(user.display_name || "—")}</td>
+
+            <td>${escapeHtml(user.role || "reader")}</td>
+
+            <td>💎 ${user.crystals || 0}</td>
+
+            <td>
+              <span class="muted">
+                ${escapeHtml(user.id.slice(0,12))}...
+              </span>
+            </td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="5" class="muted">
+              No profiles found.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+async function loadSettings(){
+
+  const {data,error}=await supabaseClient
+    .from("support_settings")
+    .select("*")
+    .limit(1)
+    .single();
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("settingChapters").value=
+    data.chapters_required || 10;
+
+  document.getElementById("settingReward").value=
+    data.crystals_reward || 10;
+
+  document.getElementById("settingEnabled").checked=
+    !!data.enabled;
+
+  document.getElementById("page-settings").dataset.id=data.id;
+}
+
+async function saveSettings(){
+
+  const id=document.getElementById("page-settings").dataset.id;
+
+  const payload={
+    chapters_required:
+      Number(document.getElementById("settingChapters").value)||10,
+
+    crystals_reward:
+      Number(document.getElementById("settingReward").value)||10,
+
+    enabled:
+      document.getElementById("settingEnabled").checked
+  };
+
+  const {error}=await supabaseClient
+    .from("support_settings")
+    .update(payload)
+    .eq("id",id);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  await logActivity("Updated support settings","settings",id);
+
+  showToast("Settings saved.");
+}
+
+/* =========================================================
+   ACTIVITY LOG
+========================================================= */
+
+async function logActivity(action,targetType,targetId){
+
+  if(!currentUser) return;
+
+  try{
+
+    await supabaseClient
+      .from("admin_activity")
+      .insert({
+        admin_id:currentUser.id,
+        action,
+        target_type:targetType,
+        target_id:targetId
+      });
+
+  }catch(e){
+    console.warn("Activity log failed:",e);
+  }
+}
+
+async function loadActivity(){
+
+  const {data,error}=await supabaseClient
+    .from("admin_activity")
+    .select(`
+      *,
+      profiles (
+        username,
+        display_name
+      )
+    `)
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+    showToast(error.message,true);
+    return;
+  }
+
+  document.getElementById("activityTable").innerHTML=`
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Target</th>
+          <th>Admin</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${data.length ? data.map(item=>`
+
+          <tr>
+
+            <td>${escapeHtml(item.action)}</td>
+
+            <td>
+              ${escapeHtml(item.target_type || "—")}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                item.profiles?.display_name ||
+                item.profiles?.username ||
+                "Admin"
+              )}
+            </td>
+
+            <td>${formatDate(item.created_at)}</td>
+
+          </tr>
+
+        `).join("") : `
+
+          <tr>
+            <td colspan="4" class="muted">
+              No activity recorded yet.
+            </td>
+          </tr>
+
+        `}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+/* =========================================================
+   MODAL BEHAVIOUR
+========================================================= */
+
+document.querySelectorAll(".modal").forEach(modal=>{
+
+  modal.addEventListener("click",function(e){
+
+    if(e.target===modal){
+      modal.classList.add("hidden");
+    }
+
+  });
+
+});
+
+document.addEventListener("keydown",function(e){
+
+  if(e.key==="Escape"){
+
+    document.querySelectorAll(".modal")
+      .forEach(modal=>modal.classList.add("hidden"));
+
+  }
+
+});
+
+/* =========================================================
+   START
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+
+  if(event==="SIGNED_OUT"){
+    showLogin();
+  }
+
+});
+
+checkAuth();
+
+</script>
+
+</body>
+</html>
