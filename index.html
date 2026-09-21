@@ -2313,7 +2313,31 @@ footer strong {
 </div>
 
 
+<!-- =====================================================
+     SUPABASE
+===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
 <script>
+
+/* =========================================================
+   SUPABASE CONNECTION
+========================================================= */
+
+const SUPABASE_URL =
+    "https://pdwgyknthvnzqwpgblxt.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_hFVf6lJFSekm7iIf2rdHmQ_PXw_DszE";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
 
 /* =========================================================
    BOOK DATA
@@ -2876,6 +2900,45 @@ setTimeout(function() {
 ========================================================= */
 
 renderBooks();
+
+
+/* =========================================================
+   SUPABASE CONNECTION TEST
+========================================================= */
+
+async function testSupabaseConnection() {
+
+    try {
+
+        const { error } =
+            await supabaseClient
+                .from("books")
+                .select("id")
+                .limit(1);
+
+        if (error) {
+            console.error(
+                "Supabase connection error:",
+                error.message
+            );
+            return;
+        }
+
+        console.log(
+            "BGDADDY Story Universe connected to Supabase."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Supabase connection failed:",
+            error
+        );
+
+    }
+}
+
+testSupabaseConnection();
 
 </script>
 
